@@ -15,7 +15,6 @@ import androidx.test.espresso.contrib.RecyclerViewActions
 import androidx.test.espresso.matcher.ViewMatchers
 import androidx.test.espresso.matcher.ViewMatchers.Visibility
 import androidx.test.espresso.matcher.ViewMatchers.hasDescendant
-import androidx.test.espresso.matcher.ViewMatchers.hasFocus
 import androidx.test.espresso.matcher.ViewMatchers.isCompletelyDisplayed
 import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
 import androidx.test.espresso.matcher.ViewMatchers.withEffectiveVisibility
@@ -58,6 +57,7 @@ class ThreeDotMenuMainRobot {
 
     fun verifyShareTabButton() = assertShareTabButton()
     fun verifySaveCollection() = assertSaveCollectionButton()
+
     fun clickBrowserViewSaveCollectionButton() {
         browserViewSaveCollectionButton().click()
     }
@@ -207,11 +207,12 @@ class ThreeDotMenuMainRobot {
                 waitingTime
             )
 
-            collectionNameTextField().check(matches(hasFocus()))
             collectionNameTextField().perform(
                 ViewActions.replaceText(name),
                 ViewActions.pressImeActionButton()
             )
+
+            mDevice.waitNotNull(Until.gone(By.res("org.mozilla.fenix.debug:id/createCollectionWrapper")))
 
             BrowserRobot().interact()
             return BrowserRobot.Transition()
@@ -244,6 +245,23 @@ class ThreeDotMenuMainRobot {
 
             AddToHomeScreenRobot().interact()
             return AddToHomeScreenRobot.Transition()
+        }
+
+        fun selectExistingCollection(title: String, interact: BrowserRobot.() -> Unit): BrowserRobot.Transition {
+            org.mozilla.fenix.ui.robots.mDevice.wait(
+                Until.findObject(By.text("testcollection_1")),
+                waitingTime)
+            onView(withText(title)).click()
+
+            BrowserRobot().interact()
+            return BrowserRobot.Transition()
+        }
+
+        fun clickOpenTabsMenuSaveCollection(interact: HomeScreenRobot.() -> Unit): HomeScreenRobot.Transition {
+            saveCollectionButton().click()
+
+            HomeScreenRobot().interact()
+            return HomeScreenRobot.Transition()
         }
     }
 }
